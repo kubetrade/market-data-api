@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -24,7 +24,7 @@ public class SettlementPriceService {
     }
 
     public Optional<SettlementPrice> findByDateAndExecutionVenueCodeAndSymbol(
-            Date date, String executionVenueCode, String symbol) {
+            LocalDate date, String executionVenueCode, String symbol) {
         Objects.requireNonNull(date);
         SettlementPriceId settlementPriceId = new SettlementPriceId(date, executionVenueCode, symbol);
         return this.settlementPriceRepository.findByIdOptional(settlementPriceId).map(settlementPriceMapper::toDomain);

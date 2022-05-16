@@ -3,13 +3,13 @@ package com.kubetrade.marketdata.settlementprice;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.Objects;
 
 public class SettlementPrice {
 
     @NotNull
-    private Date date;
+    private LocalDate date;
     @NotEmpty
     private String executionVenueCode;
     @NotEmpty
@@ -17,11 +17,21 @@ public class SettlementPrice {
     @NotNull
     private BigDecimal settlementPrice;
 
-    public Date getDate() {
+    public SettlementPrice(LocalDate date, String executionVenueCode, String symbol, BigDecimal settlementPrice) {
+        this.date = date;
+        this.executionVenueCode = executionVenueCode;
+        this.symbol = symbol;
+        this.settlementPrice = settlementPrice;
+    }
+
+    public SettlementPrice() {
+    }
+
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 

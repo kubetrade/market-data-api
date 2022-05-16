@@ -4,7 +4,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.Objects;
 
 @Entity(name = "SettlementPrice")
@@ -15,7 +15,7 @@ public class SettlementPriceEntity {
     @Id
     @Column(name = "date")
     @NotNull
-    private Date date;
+    private LocalDate date;
 
     @Id
     @Column(name = "execution_venue_code")
@@ -31,11 +31,11 @@ public class SettlementPriceEntity {
     @NotNull
     private BigDecimal settlementPrice;
 
-    public Date getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 

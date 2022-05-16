@@ -3,25 +3,28 @@ package com.kubetrade.marketdata.settlementprice;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.Objects;
 
 public class SettlementPriceId implements Serializable {
 
     @NotNull
-    private Date date;
+    private LocalDate date;
     @NotEmpty
     private String executionVenueCode;
     @NotEmpty
     private String symbol;
 
-    public SettlementPriceId(Date date, String executionVenueCode, String symbol) {
+    public SettlementPriceId(LocalDate date, String executionVenueCode, String symbol) {
         this.date = date;
         this.executionVenueCode = executionVenueCode;
         this.symbol = symbol;
     }
 
-    public Date getDate() {
+    public SettlementPriceId() {
+    }
+
+    public LocalDate getDate() {
         return date;
     }
 

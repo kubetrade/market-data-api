@@ -16,7 +16,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Path("/settlement-prices")
 @Produces(MediaType.APPLICATION_JSON)
@@ -47,7 +47,7 @@ public class SettlementPriceResource {
             content = @Content(mediaType = MediaType.APPLICATION_JSON)
     )
     public Response getByDateAndExecutionVenueCodeAndSymbol(
-            @Parameter(name = "date", required = true) @PathParam("date") Date date,
+            @Parameter(name = "date", required = true) @PathParam("date") LocalDate date,
             @Parameter(name = "executionVenueCode", required = true) @PathParam("executionVenueCode") String executionVenueCode,
             @Parameter(name = "symbol", required = true) @PathParam("symbol") String symbol
     ) {
