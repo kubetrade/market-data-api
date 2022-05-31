@@ -1,11 +1,13 @@
 package com.kubetrade.marketdata.settlementprice;
 
+import com.kubetrade.marketdata.event.SettlementPriceEventProducer;
 import com.kubetrade.marketdata.exception.ServiceException;
+import io.quarkus.narayana.jta.QuarkusTransaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.transaction.Transactional;
+import javax.inject.Inject;
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.Objects;
@@ -18,9 +20,13 @@ public class SettlementPriceService {
     private final SettlementPriceRepository settlementPriceRepository;
     private final SettlementPriceMapper settlementPriceMapper;
 
-    public SettlementPriceService(SettlementPriceRepository settlementPriceRepository, SettlementPriceMapper settlementPriceMapper) {
+    private final SettlementPriceEventProducer settlementPriceEventProducer;
+
+    @Inject
+    public SettlementPriceService(SettlementPriceRepository settlementPriceRepository, SettlementPriceMapper settlementPriceMapper, SettlementPriceEventProducer settlementPriceEventProducer) {
         this.settlementPriceRepository = settlementPriceRepository;
         this.settlementPriceMapper = settlementPriceMapper;
+        this.settlementPriceEventProducer = settlementPriceEventProducer;
     }
 
     public Optional<SettlementPrice> findByDateAndExecutionVenueCodeAndSymbol(
@@ -30,15 +36,16 @@ public class SettlementPriceService {
         return this.settlementPriceRepository.findByIdOptional(settlementPriceId).map(settlementPriceMapper::toDomain);
     }
 
-    @Transactional
     public void save(@Valid SettlementPrice settlementPrice) {
         log.debug("Saving SettlementPrice: {}", settlementPrice);
-        SettlementPriceEntity entity = settlementPriceMapper.toEntity(settlementPrice);
-        settlementPriceRepository.persist(entity);
-        settlementPriceMapper.updateDomainFromEntity(entity, settlementPrice);
+        QuarkusTransaction.run(() -> {
+            SettlementPriceEntity entity = settlementPriceMapper.toEntity(settlementPrice);
+            settlementPriceRepository.persist(entity);
+            settlementPriceMapper.updateDomainFromEntity(entity, settlementPrice);
+        });
+        settlementPriceEventProducer.generateSettlementPriceCreateEvent(settlementPrice);
     }
 
-    @Transactional
     public void update(@Valid SettlementPrice settlementPrice) {
         log.debug("Updating SettlementPrice: {}", settlementPrice);
         SettlementPriceId settlementPriceId = new SettlementPriceId(settlementPrice.getDate(), settlementPrice.getExecutionVenueCode(), settlementPrice.getSymbol());
@@ -47,6 +54,8 @@ public class SettlementPriceService {
         settlementPriceMapper.updateEntityFromDomain(settlementPrice, entity);
         settlementPriceRepository.persist(entity);
         settlementPriceMapper.updateDomainFromEntity(entity, settlementPrice);
+
+        settlementPriceEventProducer.generateSettlementPriceUpdateEvent(settlementPrice);
     }
 
 }

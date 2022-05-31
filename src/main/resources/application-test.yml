@@ -1,6 +1,6 @@
 quarkus:
   log:
-    level: INFO
+    level: DEBUG
     category:
       "com.kubetrade":
         level: DEBUG
@@ -10,3 +10,32 @@ quarkus:
   flyway:
     migrate-at-start: true
     locations: db/migration,db/testdata
+
+mp:
+  messaging:
+    outgoing:
+      settlement-price-event-out:
+        connector: smallrye-kafka
+        topic: market-data.settlement-price-event
+        key:
+          serializer: io.apicurio.registry.serde.avro.AvroKafkaSerializer
+        value:
+          serializer: io.apicurio.registry.serde.avro.AvroKafkaSerializer
+        apicurio:
+          registry:
+            url: ${mp.messaging.connector.smallrye-kafka.apicurio.registry.url}
+            artifact-resolver-strategy: io.apicurio.registry.serde.avro.strategy.RecordIdStrategy
+            find-latest: true
+    incoming:
+      settlement-price-event-in:
+        connector: smallrye-kafka
+        topic: market-data.settlement-price-event
+        key:
+          deserializer: io.apicurio.registry.serde.avro.AvroKafkaDeserializer
+        value:
+          deserializer: io.apicurio.registry.serde.avro.AvroKafkaDeserializer
+        apicurio:
+          registry:
+            url: ${mp.messaging.connector.smallrye-kafka.apicurio.registry.url}
+            artifact-resolver-strategy: io.apicurio.registry.serde.avro.strategy.RecordIdStrategy
+            find-latest: true
