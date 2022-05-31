@@ -1,6 +1,6 @@
 quarkus:
   log:
-    level: DEBUG
+    level: INFO
     category:
       "com.kubetrade":
         level: DEBUG
@@ -26,6 +26,7 @@ mp:
             url: ${mp.messaging.connector.smallrye-kafka.apicurio.registry.url}
             artifact-resolver-strategy: io.apicurio.registry.serde.avro.strategy.RecordIdStrategy
             find-latest: true
+            avro-datum-provider: io.apicurio.registry.serde.avro.ReflectAvroDatumProvider
     incoming:
       settlement-price-event-in:
         connector: smallrye-kafka
@@ -39,3 +40,4 @@ mp:
             url: ${mp.messaging.connector.smallrye-kafka.apicurio.registry.url}
             artifact-resolver-strategy: io.apicurio.registry.serde.avro.strategy.RecordIdStrategy
             find-latest: true
+            avro-datum-provider: io.apicurio.registry.serde.avro.ReflectAvroDatumProvider
