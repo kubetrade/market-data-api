@@ -1,5 +1,6 @@
 package com.kubetrade.marketdata.settlementprice;
 
+import com.kubetrade.marketdata.Roles;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -9,6 +10,8 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.security.RolesAllowed;
+import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
@@ -27,12 +30,14 @@ public class SettlementPriceResource {
     private static final Logger log = LoggerFactory.getLogger(SettlementPriceResource.class);
     private final SettlementPriceService settlementPriceService;
 
+    @Inject
     public SettlementPriceResource(SettlementPriceService settlementPriceService) {
         this.settlementPriceService = settlementPriceService;
     }
 
     @GET
     @Path("/{date}/{executionVenueCode}/{symbol}")
+    @RolesAllowed({ Roles.MARKET_DATA_SETTLEMENT_PRICE_ADMIN, Roles.MARKET_DATA_SETTLEMENT_PRICE_READ })
     @APIResponse(
             responseCode = "200",
             description = "Get settlement price by date, execution venue code and symbol",
@@ -57,6 +62,7 @@ public class SettlementPriceResource {
     }
 
     @POST
+    @RolesAllowed({ Roles.MARKET_DATA_SETTLEMENT_PRICE_ADMIN, Roles.MARKET_DATA_SETTLEMENT_PRICE_WRITE })
     @APIResponse(
             responseCode = "201",
             description = "SettlementPrice Created",

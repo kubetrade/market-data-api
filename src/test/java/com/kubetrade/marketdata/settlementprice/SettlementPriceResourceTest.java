@@ -3,7 +3,9 @@ package com.kubetrade.marketdata.settlementprice;
 import com.kubetrade.avro.marketdata.EventType;
 import com.kubetrade.avro.marketdata.SettlementPriceEvent;
 import com.kubetrade.avro.marketdata.SettlementPriceEventKey;
+import com.kubetrade.marketdata.Roles;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.security.TestSecurity;
 import io.restassured.http.ContentType;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.helpers.test.AssertSubscriber;
@@ -14,16 +16,11 @@ import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static io.restassured.RestAssured.given;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
 
 @QuarkusTest
 public class SettlementPriceResourceTest {
@@ -33,6 +30,7 @@ public class SettlementPriceResourceTest {
     Multi<Record<SettlementPriceEventKey, SettlementPriceEvent>> settlementPriceEventMulti;
 
     @Test
+    @TestSecurity(user = "testUser", roles = { Roles.MARKET_DATA_SETTLEMENT_PRICE_READ, Roles.MARKET_DATA_SETTLEMENT_PRICE_WRITE })
     public void getByDateAndExecutionVenueCodeAndSymbol() {
         AssertSubscriber<Record<SettlementPriceEventKey, SettlementPriceEvent>> subscriber = settlementPriceEventMulti
                 .subscribe()
@@ -60,6 +58,16 @@ public class SettlementPriceResourceTest {
         assertThat(record.key().getExecutionVenueCode()).isEqualTo(settlementPrice.getExecutionVenueCode());
         assertThat(record.key().getSymbol()).isEqualTo(settlementPrice.getSymbol());
         assertThat(record.value().getEventType()).isEqualTo(EventType.CREATE);
+    }
+
+    @Test
+    @TestSecurity(user = "testUser", roles = "InvalidRole")
+    public void getFailInvalidRole() {
+        given()
+                .when()
+                .get("/settlement-prices/{date}/{executionVenueCode}/{symbol}", LocalDate.now().format(DateTimeFormatter.ISO_DATE), "TEST", "TEST")
+                .then()
+                .statusCode(403);
     }
 
     public SettlementPrice random() {
